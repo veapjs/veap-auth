@@ -1,10 +1,16 @@
 "use server";
 
 import { app } from "@veap/kernel";
-import { authContext, isAuthContextBound } from "../common/context";
-import { RbacService } from "./rbac.service";
+import { authContext, isAuthContextBound } from "../common/context.js";
+import { RbacService } from "./rbac.service.js";
 
 async function resolveRbacService(): Promise<RbacService> {
+  const g = globalThis as any;
+  if (g.__VEAP_BOOTSTRAPPING_PROMISE__) {
+    try {
+      await g.__VEAP_BOOTSTRAPPING_PROMISE__;
+    } catch {}
+  }
   if (isAuthContextBound()) {
     return authContext().rbac;
   }

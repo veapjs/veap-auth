@@ -1,5 +1,5 @@
-import { AuthCallbackRegistry } from "./registry";
-import type { FullUser, PasswordResetSession, Session, User } from "./types";
+import { AuthCallbackRegistry } from "./registry.js";
+import type { FullUser, PasswordResetSession, Session, User } from "./types.js";
 
 /**
  * REGISTRIES FOR MODULAR EXTENSIONS

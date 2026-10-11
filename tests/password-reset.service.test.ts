@@ -1,10 +1,10 @@
 import type { ICookieStore } from "@veap/kernel";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { ITokenGenerator } from "../src/crypto";
+import type { ITokenGenerator } from "../src/crypto/index.js";
 import {
   type IPasswordResetRepository,
   PasswordResetService,
-} from "../src/passwords";
+} from "../src/passwords/index.js";
 
 describe("PasswordResetService Security", () => {
   let service: PasswordResetService;

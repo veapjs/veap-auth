@@ -7,8 +7,8 @@ vi.hoisted(() => {
 import { getKnex, initDatabase } from "@veap/database";
 import { Container } from "@veap/kernel";
 import { KernelServiceProvider } from "@veap/kernel/server";
-import { authMigrations, runAuthMigrations } from "../src/migrations";
-import { AuthServiceProvider } from "../src/providers";
+import { authMigrations, runAuthMigrations } from "../src/migrations/index.js";
+import { AuthServiceProvider } from "../src/providers/index.js";
 
 describe("Auth Migrations", () => {
   let db: any;

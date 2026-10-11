@@ -1,4 +1,7 @@
-import type { PasswordResetAuthSession, PasswordResetSession } from "../common";
+import type {
+  PasswordResetAuthSession,
+  PasswordResetSession,
+} from "../common/index.js";
 
 export type { PasswordResetAuthSession, PasswordResetSession };
 

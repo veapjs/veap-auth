@@ -4,7 +4,7 @@ import type {
   Session,
   SessionFlags,
   UserSession,
-} from "../common";
+} from "../common/index.js";
 
 export type { AuthSession, FullUser, Session, SessionFlags, UserSession };
 

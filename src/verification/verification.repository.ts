@@ -1,9 +1,9 @@
-import { EmailVerification } from "../models/EmailVerification";
+import { EmailVerification } from "../models/EmailVerification.js";
 import type {
   CreateEmailVerificationRecord,
   EmailVerificationRecord,
   IEmailVerificationRepository,
-} from "./contracts";
+} from "./contracts.js";
 
 /** `IEmailVerificationRepository` adapter backed by `EmailVerification`. */
 export class ActiveRecordEmailVerificationRepository

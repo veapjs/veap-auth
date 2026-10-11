@@ -1,10 +1,10 @@
-import type { Session as SessionEntity } from "../common";
-import { Session } from "../models/Session";
+import type { Session as SessionEntity } from "../common/index.js";
+import { Session } from "../models/Session.js";
 import type {
   CreateSessionRecord,
   ISessionRepository,
   SessionWithUser,
-} from "./contracts";
+} from "./contracts.js";
 
 /**
  * `ISessionRepository` adapter backed by the `Session` ActiveRecord model.

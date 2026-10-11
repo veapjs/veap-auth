@@ -1,6 +1,6 @@
 import { Model } from "@veap/database";
-import { Permission } from "./Permission";
-import { User } from "./User";
+import { Permission } from "./Permission.js";
+import { User } from "./User.js";
 
 export interface RoleAttributes {
   id: string;

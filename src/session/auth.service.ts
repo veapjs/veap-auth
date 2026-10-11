@@ -6,14 +6,17 @@ import {
   Inject,
   Injectable,
 } from "@veap/kernel";
-import type { AuthResponse, SessionFlags } from "../common";
-import { authValidators, performFullUserAugmentation } from "../common/logic";
-import { type IPasswordHasher, PASSWORD_HASHER } from "../crypto/contracts";
-import { UserService } from "../users/user.service";
-import type { LoginInput, RegisterInput } from "../validation";
-import { loginSchema, registerSchema } from "../validation";
-import { EmailVerificationService } from "../verification/verification.service";
-import { SessionService } from "./session.service";
+import type { AuthResponse, SessionFlags } from "../common/index.js";
+import {
+  authValidators,
+  performFullUserAugmentation,
+} from "../common/logic.js";
+import { type IPasswordHasher, PASSWORD_HASHER } from "../crypto/contracts.js";
+import { UserService } from "../users/user.service.js";
+import type { LoginInput, RegisterInput } from "../validation/index.js";
+import { loginSchema, registerSchema } from "../validation/index.js";
+import { EmailVerificationService } from "../verification/verification.service.js";
+import { SessionService } from "./session.service.js";
 
 @Injectable()
 export class AuthService {
@@ -168,11 +171,10 @@ export class AuthService {
       };
     }
 
-    const passwordHash = await this.hasher.hash(password);
     const user = await this.userService.createUser(
       normalizedEmail,
       username,
-      passwordHash,
+      password,
     );
 
     const sessionFlags: SessionFlags = {};

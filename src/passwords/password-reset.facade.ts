@@ -1,14 +1,20 @@
 "use server";
 
 import { app } from "@veap/kernel";
+import { authContext, isAuthContextBound } from "../common/context.js";
 import type {
   PasswordResetAuthSession,
   PasswordResetSession as PasswordResetSessionType,
-} from "../common";
-import { authContext, isAuthContextBound } from "../common/context";
-import { PasswordResetService } from "./password-reset.service";
+} from "../common/index.js";
+import { PasswordResetService } from "./password-reset.service.js";
 
 async function resolvePasswordResetService(): Promise<PasswordResetService> {
+  const g = globalThis as any;
+  if (g.__VEAP_BOOTSTRAPPING_PROMISE__) {
+    try {
+      await g.__VEAP_BOOTSTRAPPING_PROMISE__;
+    } catch {}
+  }
   if (isAuthContextBound()) {
     return authContext().passwordReset;
   }

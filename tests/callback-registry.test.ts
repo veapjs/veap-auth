@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import type { FullUser, Session } from "../src/common";
+import type { FullUser, Session } from "../src/common/index.js";
 import {
   AuthCallbackRegistry,
   augmentSession,
@@ -10,7 +10,7 @@ import {
   unregisterAuthValidator,
   unregisterSecurityRequirement,
   unregisterSessionAugmenter,
-} from "../src/common";
+} from "../src/common/index.js";
 
 describe("AuthCallbackRegistry", () => {
   let registry: AuthCallbackRegistry<() => string>;

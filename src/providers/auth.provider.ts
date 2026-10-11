@@ -1,48 +1,48 @@
 import { isDatabaseInitialized } from "@veap/database";
 import {
-  AUTH_ROUTES,
   ConfigService,
   Container,
   container as defaultContainer,
   logger,
-  ROUTER_SERVICE,
   ServiceProvider,
 } from "@veap/kernel";
-import { bindAuthContext } from "../common/context";
+import { bindAuthContext } from "../common/context.js";
 import {
+  AUTH_ROUTES,
   type AuthConfig,
   type AuthRoutesConfig,
   DEFAULT_AUTH_ROUTES,
-} from "../common/routes";
-import { AesSecretCipher } from "../crypto/aes-cipher";
-import { BcryptPasswordHasher } from "../crypto/bcrypt-hasher";
+  ROUTER_SERVICE,
+} from "../common/routes.js";
+import { AesSecretCipher } from "../crypto/aes-cipher.js";
+import { BcryptPasswordHasher } from "../crypto/bcrypt-hasher.js";
 import {
   PASSWORD_HASHER,
   SECRET_CIPHER,
   TOKEN_GENERATOR,
-} from "../crypto/contracts";
-import { OsloTokenGenerator } from "../crypto/token-generator";
-import { runAuthMigrations } from "../migrations";
-import { PASSWORD_RESET_REPOSITORY } from "../passwords/contracts";
-import { ActiveRecordPasswordResetRepository } from "../passwords/password-reset.repository";
-import { PasswordResetService } from "../passwords/password-reset.service";
-import { PERMISSION_REPOSITORY, ROLE_REPOSITORY } from "../rbac/contracts";
+} from "../crypto/contracts.js";
+import { OsloTokenGenerator } from "../crypto/token-generator.js";
+import { runAuthMigrations } from "../migrations/index.js";
+import { PASSWORD_RESET_REPOSITORY } from "../passwords/contracts.js";
+import { ActiveRecordPasswordResetRepository } from "../passwords/password-reset.repository.js";
+import { PasswordResetService } from "../passwords/password-reset.service.js";
+import { PERMISSION_REPOSITORY, ROLE_REPOSITORY } from "../rbac/contracts.js";
 import {
   ActiveRecordPermissionRepository,
   ActiveRecordRoleRepository,
-} from "../rbac/rbac.repository";
-import { RbacService } from "../rbac/rbac.service";
-import { AuthService } from "../session/auth.service";
-import { SESSION_REPOSITORY } from "../session/contracts";
-import { ActiveRecordSessionRepository } from "../session/session.repository";
-import { SessionService } from "../session/session.service";
-import { USER_REPOSITORY } from "../users/contracts";
-import { ActiveRecordUserRepository } from "../users/user.repository";
-import { UserService } from "../users/user.service";
-import { EMAIL_VERIFICATION_REPOSITORY } from "../verification/contracts";
-import { ActiveRecordEmailVerificationRepository } from "../verification/verification.repository";
-import { EmailVerificationService } from "../verification/verification.service";
-import { isSystemInstalled } from "./setup";
+} from "../rbac/rbac.repository.js";
+import { RbacService } from "../rbac/rbac.service.js";
+import { AuthService } from "../session/auth.service.js";
+import { SESSION_REPOSITORY } from "../session/contracts.js";
+import { ActiveRecordSessionRepository } from "../session/session.repository.js";
+import { SessionService } from "../session/session.service.js";
+import { USER_REPOSITORY } from "../users/contracts.js";
+import { ActiveRecordUserRepository } from "../users/user.repository.js";
+import { UserService } from "../users/user.service.js";
+import { EMAIL_VERIFICATION_REPOSITORY } from "../verification/contracts.js";
+import { ActiveRecordEmailVerificationRepository } from "../verification/verification.repository.js";
+import { EmailVerificationService } from "../verification/verification.service.js";
+import { isSystemInstalled } from "./setup.js";
 
 export class AuthServiceProvider extends ServiceProvider {
   private config?: AuthConfig;
@@ -135,7 +135,7 @@ export class AuthServiceProvider extends ServiceProvider {
       singleton: true,
     });
 
-    // Application services
+    // Services
     this.container.register({
       token: UserService,
       useClass: UserService,
@@ -174,7 +174,12 @@ export class AuthServiceProvider extends ServiceProvider {
   }
 
   async boot(): Promise<void> {
-    // 1. Resolve and bind global auth context
+    // 0. Auto-bootstrap setup state
+    try {
+      isSystemInstalled();
+    } catch {}
+
+    // 1. Resolve domain services and bind singleton auth context
     const user = await this.container.resolve<UserService>(UserService);
     const session =
       await this.container.resolve<SessionService>(SessionService);
@@ -240,8 +245,5 @@ export class AuthServiceProvider extends ServiceProvider {
         );
       }
     }
-
-    // 4. Publish system:not-installed if no users exist
-    await isSystemInstalled();
   }
 }

@@ -1,5 +1,5 @@
 import bcrypt from "bcryptjs";
-import type { IPasswordHasher } from "./contracts";
+import type { IPasswordHasher } from "./contracts.js";
 
 /**
  * Bcrypt adapter for the IPasswordHasher port.

@@ -8,17 +8,18 @@ import {
   REQUEST_CONTEXT,
 } from "@veap/kernel";
 import { addDays } from "date-fns";
+import { augmentSession } from "../common/augment.js";
+import { getAuthRoutes } from "../common/context.js";
 import type {
   AuthSession,
   SessionFlags,
   Session as SessionType,
   User,
   UserSession,
-} from "../common";
-import { augmentSession } from "../common/augment";
-import { performFullUserAugmentation } from "../common/logic";
-import { type ITokenGenerator, TOKEN_GENERATOR } from "../crypto/contracts";
-import { type ISessionRepository, SESSION_REPOSITORY } from "./contracts";
+} from "../common/index.js";
+import { performFullUserAugmentation } from "../common/logic.js";
+import { type ITokenGenerator, TOKEN_GENERATOR } from "../crypto/contracts.js";
+import { type ISessionRepository, SESSION_REPOSITORY } from "./contracts.js";
 
 @Injectable()
 export class SessionService {
@@ -218,7 +219,8 @@ export class SessionService {
       await this.deleteSessionTokenCookie();
     }
 
-    await this.requestContext.redirect("/signin");
+    const routes = getAuthRoutes();
+    await this.requestContext.redirect(routes.signIn);
   }
 
   /**

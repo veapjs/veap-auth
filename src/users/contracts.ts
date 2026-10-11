@@ -1,4 +1,4 @@
-import type { FullUser, User } from "../common";
+import type { FullUser, User } from "../common/index.js";
 
 export type { FullUser, User };
 
@@ -38,6 +38,8 @@ export interface IUserRepository {
   setRecoveryCode(id: string, encrypted: Uint8Array): Promise<void>;
 
   setEmailVerifiedIfEmailMatches(id: string, email: string): Promise<boolean>;
+
+  isEmailAvailable(email: string): Promise<boolean>;
 }
 
 /** Injection token for the user repository port. */

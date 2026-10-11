@@ -7,9 +7,9 @@ import {
   unregisterIdentityAugmenter,
   unregisterPasswordResetSessionAugmenter,
   unregisterSessionAugmenter,
-} from "./augment";
-import { authContext, isAuthContextBound } from "./context";
-import { AuthCallbackRegistry } from "./registry";
+} from "./augment.js";
+import { authContext, isAuthContextBound } from "./context.js";
+import { AuthCallbackRegistry } from "./registry.js";
 import type {
   AuthResponse,
   FullUser,
@@ -17,7 +17,7 @@ import type {
   User,
   UserPermission,
   UserRole,
-} from "./types";
+} from "./types.js";
 
 /**
  * Registry for login validators (e.g. 2FA module)

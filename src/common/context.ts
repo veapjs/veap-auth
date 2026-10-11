@@ -1,4 +1,4 @@
-import { type AuthRoutesConfig, DEFAULT_AUTH_ROUTES } from "./routes";
+import { type AuthRoutesConfig, DEFAULT_AUTH_ROUTES } from "./routes.js";
 
 export interface AuthContext {
   user: any;
@@ -7,18 +7,21 @@ export interface AuthContext {
   passwordReset: any;
   emailVerification: any;
   auth: any;
-  routes: AuthRoutesConfig;
+  routes?: AuthRoutesConfig;
 }
 
 const globalForAuthContext = globalThis as unknown as {
-  __VEAP_AUTH_CONTEXT__?: AuthContext;
+  __VEAP_AUTH_CONTEXT__?: AuthContext & { routes: AuthRoutesConfig };
 };
 
 /**
  * Binds the resolved auth services. Called once by the composition root.
  */
 export function bindAuthContext(context: AuthContext): void {
-  globalForAuthContext.__VEAP_AUTH_CONTEXT__ = context;
+  globalForAuthContext.__VEAP_AUTH_CONTEXT__ = {
+    ...context,
+    routes: context.routes || DEFAULT_AUTH_ROUTES,
+  };
 }
 
 /**
@@ -33,7 +36,7 @@ export function isAuthContextBound(): boolean {
  *
  * @throws If the auth service provider has not booted yet.
  */
-export function authContext(): AuthContext {
+export function authContext(): AuthContext & { routes: AuthRoutesConfig } {
   const context = globalForAuthContext.__VEAP_AUTH_CONTEXT__;
   if (!context) {
     throw new Error(
@@ -44,10 +47,9 @@ export function authContext(): AuthContext {
 }
 
 /**
- * Returns the currently configured authentication routes.
- * If the Auth context is not bound yet, returns DEFAULT_AUTH_ROUTES.
+ * Resolves currently configured auth routes, falling back to defaults.
  */
 export function getAuthRoutes(): AuthRoutesConfig {
   const context = globalForAuthContext.__VEAP_AUTH_CONTEXT__;
-  return context?.routes ?? DEFAULT_AUTH_ROUTES;
+  return context?.routes || DEFAULT_AUTH_ROUTES;
 }

@@ -1,5 +1,5 @@
 import { type CastType, Model } from "@veap/database";
-import { User } from "./User";
+import { User } from "./User.js";
 
 export interface PasswordResetSessionAttributes {
   id: string;

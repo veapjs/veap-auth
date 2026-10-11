@@ -1,7 +1,7 @@
 import { type CastType, Model } from "@veap/database";
-import { Permission } from "./Permission";
-import { Role } from "./Role";
-import { Session } from "./Session";
+import { Permission } from "./Permission.js";
+import { Role } from "./Role.js";
+import { Session } from "./Session.js";
 
 export interface UserAttributes {
   id: string;

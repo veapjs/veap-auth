@@ -4,19 +4,19 @@ import type {
   IHttpRequestContext,
 } from "@veap/kernel";
 import { beforeEach, describe, expect, it } from "vitest";
-import type { Session } from "../src/common";
-import { bindAuthContext } from "../src/common";
-import type { ITokenGenerator } from "../src/crypto";
-import type { PasswordResetService } from "../src/passwords";
-import type { RbacService } from "../src/rbac";
+import type { Session } from "../src/common/index.js";
+import { bindAuthContext } from "../src/common/index.js";
+import type { ITokenGenerator } from "../src/crypto/index.js";
+import type { PasswordResetService } from "../src/passwords/index.js";
+import type { RbacService } from "../src/rbac/index.js";
 import {
   type AuthService,
   type CreateSessionRecord,
   type ISessionRepository,
   SessionService,
-} from "../src/session";
-import type { UserService } from "../src/users";
-import type { EmailVerificationService } from "../src/verification";
+} from "../src/session/index.js";
+import type { UserService } from "../src/users/index.js";
+import type { EmailVerificationService } from "../src/verification/index.js";
 
 /**
  * SessionService - the first tests for the auth services, possible because

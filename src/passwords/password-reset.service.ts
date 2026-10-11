@@ -8,17 +8,17 @@ import {
 } from "@veap/kernel";
 import { sendResetPassword } from "@veap/mail";
 import { addMinutes } from "date-fns";
+import { augmentPasswordResetSession } from "../common/augment.js";
 import type {
   PasswordResetAuthSession,
   PasswordResetSession as PasswordResetSessionType,
-} from "../common";
-import { augmentPasswordResetSession } from "../common/augment";
-import { performFullUserAugmentation } from "../common/logic";
-import { type ITokenGenerator, TOKEN_GENERATOR } from "../crypto/contracts";
+} from "../common/index.js";
+import { performFullUserAugmentation } from "../common/logic.js";
+import { type ITokenGenerator, TOKEN_GENERATOR } from "../crypto/contracts.js";
 import {
   type IPasswordResetRepository,
   PASSWORD_RESET_REPOSITORY,
-} from "./contracts";
+} from "./contracts.js";
 
 interface DummyResetSession {
   id: string;

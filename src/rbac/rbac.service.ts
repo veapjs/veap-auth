@@ -1,5 +1,5 @@
 import { Inject, Injectable } from "@veap/kernel";
-import type { User } from "../common";
+import type { User } from "../common/index.js";
 import {
   type AccessGrant,
   type IPermissionRepository,
@@ -8,7 +8,7 @@ import {
   type PermissionRecord,
   ROLE_REPOSITORY,
   type RoleRecord,
-} from "./contracts";
+} from "./contracts.js";
 
 /**
  * Core RBAC use cases. Persistence lives behind the role/permission

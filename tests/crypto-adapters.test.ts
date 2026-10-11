@@ -15,8 +15,8 @@ import {
   BcryptPasswordHasher,
   OsloTokenGenerator,
   PASSWORD_HASHER,
-} from "../src/crypto";
-import { AuthServiceProvider } from "../src/providers";
+} from "../src/crypto/index.js";
+import { AuthServiceProvider } from "../src/providers/index.js";
 
 /**
  * Cryptographic adapters - the concrete implementations behind the
@@ -168,7 +168,7 @@ describe("AesSecretCipher", () => {
   it("throws on tampered ciphertext (GCM auth tag)", () => {
     const encrypted = cipher.encrypt("integrity matters");
     const tampered = encrypted.slice();
-    tampered[20] = (tampered[20] + 1) % 256;
+    tampered[20] = ((tampered[20] ?? 0) + 1) % 256;
     expect(() => cipher.decryptToString(tampered)).toThrow();
   });
 

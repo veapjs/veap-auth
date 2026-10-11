@@ -1,7 +1,7 @@
 import { getKnex } from "@veap/database";
-import { Permission } from "../models/Permission";
-import { Role } from "../models/Role";
-import { User } from "../models/User";
+import { Permission } from "../models/Permission.js";
+import { Role } from "../models/Role.js";
+import { User } from "../models/User.js";
 import type {
   AccessGrant,
   CreatePermissionRecord,
@@ -11,7 +11,7 @@ import type {
   PermissionRecord,
   RoleRecord,
   UserAccess,
-} from "./contracts";
+} from "./contracts.js";
 
 /**
  * `IRoleRepository` adapter backed by the `Role` ActiveRecord model and the

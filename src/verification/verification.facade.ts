@@ -1,15 +1,21 @@
 "use server";
 
 import { app } from "@veap/kernel";
-import { authContext, isAuthContextBound } from "../common/context";
+import { authContext, isAuthContextBound } from "../common/context.js";
 import {
   type EmailVerificationRequestType,
   EmailVerificationService,
-} from "./verification.service";
+} from "./verification.service.js";
 
 export type { EmailVerificationRequestType };
 
 async function resolveVerificationService(): Promise<EmailVerificationService> {
+  const g = globalThis as any;
+  if (g.__VEAP_BOOTSTRAPPING_PROMISE__) {
+    try {
+      await g.__VEAP_BOOTSTRAPPING_PROMISE__;
+    } catch {}
+  }
   if (isAuthContextBound()) {
     return authContext().emailVerification;
   }

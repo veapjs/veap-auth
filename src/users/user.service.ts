@@ -1,6 +1,6 @@
 import { AppError, Inject, Injectable } from "@veap/kernel";
 import { sendRecoveryCode } from "@veap/mail";
-import type { User } from "../common";
+import type { User } from "../common/index.js";
 import {
   type IPasswordHasher,
   type ISecretCipher,
@@ -8,9 +8,9 @@ import {
   PASSWORD_HASHER,
   SECRET_CIPHER,
   TOKEN_GENERATOR,
-} from "../crypto/contracts";
-import { type IRoleRepository, ROLE_REPOSITORY } from "../rbac/contracts";
-import { type IUserRepository, USER_REPOSITORY } from "./contracts";
+} from "../crypto/contracts.js";
+import { type IRoleRepository, ROLE_REPOSITORY } from "../rbac/contracts.js";
+import { type IUserRepository, USER_REPOSITORY } from "./contracts.js";
 
 const DEFAULT_ROLE = "user";
 
@@ -33,6 +33,13 @@ export class UserService {
       username.length < 32 &&
       username.trim() === username
     );
+  }
+
+  /**
+   * Checks whether the specified email is available for registration.
+   */
+  public async isEmailAvailable(email: string): Promise<boolean> {
+    return await this.users.isEmailAvailable(email);
   }
 
   /**
@@ -99,13 +106,20 @@ export class UserService {
   /**
    * Decrypts and returns the user's recovery code.
    */
-  public async getUserRecoverCode(userId: string): Promise<string> {
+  public async getUserRecoveryCode(userId: string): Promise<string> {
     const stored = await this.users.findRecoveryCode(userId);
     if (!stored) {
       throw AppError.BadRequest("Recovery code not found for user");
     }
 
     return this.cipher.decryptToString(stored);
+  }
+
+  /**
+   * @deprecated Use `getUserRecoveryCode` instead.
+   */
+  public async getUserRecoverCode(userId: string): Promise<string> {
+    return this.getUserRecoveryCode(userId);
   }
 
   /**
@@ -151,10 +165,17 @@ export class UserService {
   }
 
   /**
-   * Updates the user's image.
+   * Updates the user's avatar image.
+   */
+  public async updateUserAvatar(userId: string, image: string): Promise<void> {
+    await this.users.update(userId, { image });
+  }
+
+  /**
+   * @deprecated Use `updateUserAvatar` instead.
    */
   public async updateUserAwatar(userId: string, image: string): Promise<void> {
-    await this.users.update(userId, { image });
+    return this.updateUserAvatar(userId, image);
   }
 
   /**

@@ -6,14 +6,15 @@ import {
 } from "@veap/kernel";
 import { sendVerifyEmail } from "@veap/mail";
 import { addMinutes } from "date-fns";
-import { registerSecurityRequirement } from "../common/logic";
-import { type ITokenGenerator, TOKEN_GENERATOR } from "../crypto/contracts";
-import { SessionService } from "../session/session.service";
+import { getAuthRoutes } from "../common/context.js";
+import { registerSecurityRequirement } from "../common/logic.js";
+import { type ITokenGenerator, TOKEN_GENERATOR } from "../crypto/contracts.js";
+import { SessionService } from "../session/session.service.js";
 import {
   EMAIL_VERIFICATION_REPOSITORY,
   type EmailVerificationRecord,
   type IEmailVerificationRepository,
-} from "./contracts";
+} from "./contracts.js";
 
 export type EmailVerificationRequestType = EmailVerificationRecord;
 
@@ -33,9 +34,10 @@ export class EmailVerificationService {
   async initEmailVerification() {
     registerSecurityRequirement(async (_session, user) => {
       if (!user.emailVerifiedAt) {
+        const routes = getAuthRoutes();
         return {
           satisfied: false,
-          redirect: "/verify-email?unverified",
+          redirect: `${routes.verifyEmail}?unverified`,
         };
       }
       return { satisfied: true };

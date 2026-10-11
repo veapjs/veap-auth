@@ -1,4 +1,4 @@
-import type { UserPermission, UserRole } from "../common";
+import type { UserPermission, UserRole } from "../common/index.js";
 
 export type { UserPermission, UserRole };
 

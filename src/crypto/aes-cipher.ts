@@ -1,5 +1,5 @@
-import type { ISecretCipher } from "./contracts";
-import { decryptToString, encryptString } from "./encryption";
+import type { ISecretCipher } from "./contracts.js";
+import { decryptToString, encryptString } from "./encryption.js";
 
 /**
  * AES-GCM adapter for the ISecretCipher port.

@@ -7,8 +7,11 @@ import {
   useEffect,
   useState,
 } from "react";
-import { type AuthRoutesConfig, DEFAULT_AUTH_ROUTES } from "../common/routes";
-import type { AuthSession } from "../common/types";
+import {
+  type AuthRoutesConfig,
+  DEFAULT_AUTH_ROUTES,
+} from "../common/routes.js";
+import type { AuthSession } from "../common/types.js";
 
 export interface AuthContextValue {
   user: AuthSession["user"] | null | undefined;

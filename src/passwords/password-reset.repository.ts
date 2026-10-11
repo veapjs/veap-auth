@@ -1,10 +1,10 @@
-import type { PasswordResetSession as PasswordResetSessionEntity } from "../common";
-import { PasswordResetSession } from "../models/PasswordResetSession";
+import type { PasswordResetSession as PasswordResetSessionEntity } from "../common/index.js";
+import { PasswordResetSession } from "../models/PasswordResetSession.js";
 import type {
   CreatePasswordResetRecord,
   IPasswordResetRepository,
   PasswordResetWithUser,
-} from "./contracts";
+} from "./contracts.js";
 
 /** `IPasswordResetRepository` adapter backed by `PasswordResetSession`. */
 export class ActiveRecordPasswordResetRepository

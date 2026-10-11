@@ -1,11 +1,17 @@
 "use server";
 
 import { app } from "@veap/kernel";
-import type { User } from "../common";
-import { authContext, isAuthContextBound } from "../common/context";
-import { UserService } from "./user.service";
+import { authContext, isAuthContextBound } from "../common/context.js";
+import type { User } from "../common/index.js";
+import { UserService } from "./user.service.js";
 
 async function resolveUserService(): Promise<UserService> {
+  const g = globalThis as any;
+  if (g.__VEAP_BOOTSTRAPPING_PROMISE__) {
+    try {
+      await g.__VEAP_BOOTSTRAPPING_PROMISE__;
+    } catch {}
+  }
   if (isAuthContextBound()) {
     return authContext().user;
   }
@@ -15,6 +21,19 @@ async function resolveUserService(): Promise<UserService> {
 export async function verifyUsernameInput(username: string): Promise<boolean> {
   const service = await resolveUserService();
   return service.verifyUsernameInput(username);
+}
+
+export async function isEmailAvailable(email: string): Promise<boolean> {
+  const service = await resolveUserService();
+  return service.isEmailAvailable(email);
+}
+
+/**
+ * Checks if an email address is available for registration.
+ * Compatible with legacy imports.
+ */
+export async function checkEmailAvailability(email: string): Promise<boolean> {
+  return isEmailAvailable(email);
 }
 
 export async function createUser(
@@ -40,9 +59,16 @@ export async function getUserById(userId: string): Promise<User | null> {
   return service.getUserById(userId);
 }
 
-export async function getUserRecoverCode(userId: string): Promise<string> {
+export async function getUserRecoveryCode(userId: string): Promise<string> {
   const service = await resolveUserService();
-  return service.getUserRecoverCode(userId);
+  return service.getUserRecoveryCode(userId);
+}
+
+/**
+ * @deprecated Use `getUserRecoveryCode` instead.
+ */
+export async function getUserRecoverCode(userId: string): Promise<string> {
+  return getUserRecoveryCode(userId);
 }
 
 export async function resetUserRecoveryCode(userId: string): Promise<string> {
@@ -66,12 +92,22 @@ export async function updateUserName(
   return service.updateUserName(userId, name);
 }
 
-export async function updateUserAwatar(
+export async function updateUserAvatar(
   userId: string,
   image: string,
 ): Promise<void> {
   const service = await resolveUserService();
-  return service.updateUserAwatar(userId, image);
+  return service.updateUserAvatar(userId, image);
+}
+
+/**
+ * @deprecated Use `updateUserAvatar` instead.
+ */
+export async function updateUserAwatar(
+  userId: string,
+  image: string,
+): Promise<void> {
+  return updateUserAvatar(userId, image);
 }
 
 export async function updateUserEmailAndSetEmailAsVerified(

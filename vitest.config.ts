@@ -5,6 +5,9 @@ export default defineConfig({
     include: ["tests/**/*.test.ts", "tests/**/*.test.tsx"],
     environment: "node",
     globals: false,
+    env: {
+      ENCRYPTION_KEY: "MDEyMzQ1Njc4OWFiY2RlZg==",
+    },
     server: {
       deps: {
         inline: [/@veap\//],

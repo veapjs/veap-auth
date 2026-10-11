@@ -4,10 +4,14 @@ vi.hoisted(() => {
   process.env.ENCRYPTION_KEY = "MDEyMzQ1Njc4OWFiY2RlZg==";
 });
 
-import { container, ROUTER_SERVICE } from "@veap/kernel";
+import { container } from "@veap/kernel";
 import { KernelServiceProvider } from "@veap/kernel/server";
-import { DEFAULT_AUTH_ROUTES, getAuthRoutes } from "../src/common";
-import { AuthServiceProvider } from "../src/providers";
+import {
+  DEFAULT_AUTH_ROUTES,
+  getAuthRoutes,
+  ROUTER_SERVICE,
+} from "../src/common/index.js";
+import { AuthServiceProvider } from "../src/providers/index.js";
 
 describe("Auth Routes Configuration and Rewrites", () => {
   beforeEach(() => {

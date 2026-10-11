@@ -2,14 +2,14 @@
 
 import { app } from "@veap/kernel";
 import { cache } from "react";
+import { authContext, isAuthContextBound } from "../common/context.js";
 import type {
   AuthSession,
   SessionFlags,
   Session as SessionType,
   UserSession,
-} from "../common";
-import { authContext, isAuthContextBound } from "../common/context";
-import { SessionService } from "./session.service";
+} from "../common/index.js";
+import { SessionService } from "./session.service.js";
 
 async function resolveSessionService(): Promise<SessionService> {
   const g = globalThis as any;

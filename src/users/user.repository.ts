@@ -1,10 +1,10 @@
-import type { User as UserEntity } from "../common";
-import { User } from "../models/User";
+import type { User as UserEntity } from "../common/index.js";
+import { User } from "../models/User.js";
 import type {
   CreateUserRecord,
   IUserRepository,
   UpdateUserRecord,
-} from "./contracts";
+} from "./contracts.js";
 
 /**
  * `IUserRepository` adapter backed by the `User` ActiveRecord model.
@@ -66,5 +66,11 @@ export class ActiveRecordUserRepository implements IUserRepository {
     });
 
     return updated > 0;
+  }
+
+  async isEmailAvailable(email: string): Promise<boolean> {
+    const normalized = email.toLowerCase().trim();
+    const exists = await User.where("email", normalized).exists();
+    return !exists;
   }
 }

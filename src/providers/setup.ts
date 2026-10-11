@@ -1,5 +1,5 @@
 import { eventBus, logger } from "@veap/kernel";
-import { User } from "../models/User";
+import { User } from "../models/User.js";
 
 /**
  * Checks if the system is installed.

@@ -4,7 +4,7 @@ import {
   encodeBase32UpperCaseNoPadding,
   encodeHexLowerCase,
 } from "@oslojs/encoding";
-import type { ITokenGenerator } from "./contracts";
+import type { ITokenGenerator } from "./contracts.js";
 
 /**
  * Oslo-based adapter for the ITokenGenerator port.

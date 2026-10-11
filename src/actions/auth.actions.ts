@@ -1,9 +1,9 @@
 "use server";
 
 import { app, handleActionError, ok, type Result } from "@veap/kernel";
-import type { AuthResponse, SessionFlags } from "../common";
-import { AuthService } from "../session/auth.service";
-import type { LoginInput, RegisterInput } from "../validation";
+import type { AuthResponse, SessionFlags } from "../common/index.js";
+import { AuthService } from "../session/auth.service.js";
+import type { LoginInput, RegisterInput } from "../validation/index.js";
 
 export async function signIn(data: LoginInput): Promise<Result<AuthResponse>> {
   try {
