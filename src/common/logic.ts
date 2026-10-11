@@ -1,0 +1,289 @@
+import {
+  augmentSession,
+  augmentUser,
+  registerIdentityAugmenter,
+  registerPasswordResetSessionAugmenter,
+  registerSessionAugmenter,
+  unregisterIdentityAugmenter,
+  unregisterPasswordResetSessionAugmenter,
+  unregisterSessionAugmenter,
+} from "./augment";
+import { authContext, isAuthContextBound } from "./context";
+import { AuthCallbackRegistry } from "./registry";
+import type {
+  AuthResponse,
+  FullUser,
+  Session,
+  User,
+  UserPermission,
+  UserRole,
+} from "./types";
+
+/**
+ * Registry for login validators (e.g. 2FA module)
+ */
+export type AuthValidator = (userId: string) => Promise<AuthResponse | null>;
+
+/**
+ * Registry for Security Requirements (e.g. checking if 2FA is needed for a session)
+ */
+export type SecurityRequirement = (
+  session: Session,
+  user: FullUser,
+  /**
+   * Request path the security check is running for ("/app/jobs", "/", ...).
+   * Lets a requirement exempt the route that resolves its own gate (e.g. an
+   * onboarding wizard) and prevents redirect loops.
+   */
+  path?: string,
+) => Promise<{ satisfied: boolean; redirect?: string } | null>;
+
+/**
+ * Registry for password reset validators (e.g. 2FA module requiring check during reset)
+ */
+export type PasswordResetValidator = (
+  userId: string,
+) => Promise<AuthResponse | null>;
+
+/**
+ * Registry for email verification validators
+ */
+export type EmailVerificationValidator = (
+  userId: string,
+) => Promise<AuthResponse | null>;
+
+const globalForAuth = globalThis as unknown as {
+  __VEAP_AUTH_VALIDATORS__: AuthCallbackRegistry<AuthValidator> | undefined;
+  __VEAP_SECURITY_REQUIREMENTS__:
+    | AuthCallbackRegistry<SecurityRequirement>
+    | undefined;
+  __VEAP_PASSWORD_RESET_VALIDATORS__:
+    | AuthCallbackRegistry<PasswordResetValidator>
+    | undefined;
+  __VEAP_EMAIL_VERIFICATION_VALIDATORS__:
+    | AuthCallbackRegistry<EmailVerificationValidator>
+    | undefined;
+};
+
+export const authValidators =
+  globalForAuth.__VEAP_AUTH_VALIDATORS__ ??
+  new AuthCallbackRegistry<AuthValidator>();
+export const securityRequirements =
+  globalForAuth.__VEAP_SECURITY_REQUIREMENTS__ ??
+  new AuthCallbackRegistry<SecurityRequirement>();
+export const passwordResetValidators =
+  globalForAuth.__VEAP_PASSWORD_RESET_VALIDATORS__ ??
+  new AuthCallbackRegistry<PasswordResetValidator>();
+export const emailVerificationValidators =
+  globalForAuth.__VEAP_EMAIL_VERIFICATION_VALIDATORS__ ??
+  new AuthCallbackRegistry<EmailVerificationValidator>();
+
+globalForAuth.__VEAP_AUTH_VALIDATORS__ = authValidators;
+globalForAuth.__VEAP_SECURITY_REQUIREMENTS__ = securityRequirements;
+globalForAuth.__VEAP_PASSWORD_RESET_VALIDATORS__ = passwordResetValidators;
+globalForAuth.__VEAP_EMAIL_VERIFICATION_VALIDATORS__ =
+  emailVerificationValidators;
+
+export function registerAuthValidator(validator: AuthValidator): void;
+export function registerAuthValidator(
+  id: string,
+  validator: AuthValidator,
+): void;
+export function registerAuthValidator(
+  idOrValidator: string | AuthValidator,
+  validator?: AuthValidator,
+): void {
+  authValidators.register(idOrValidator, validator);
+}
+
+export function unregisterAuthValidator(
+  idOrValidator: string | AuthValidator,
+): boolean {
+  return authValidators.unregister(idOrValidator);
+}
+
+export function registerPasswordResetValidator(
+  validator: PasswordResetValidator,
+): void;
+export function registerPasswordResetValidator(
+  id: string,
+  validator: PasswordResetValidator,
+): void;
+export function registerPasswordResetValidator(
+  idOrValidator: string | PasswordResetValidator,
+  validator?: PasswordResetValidator,
+): void {
+  passwordResetValidators.register(idOrValidator, validator);
+}
+
+export function unregisterPasswordResetValidator(
+  idOrValidator: string | PasswordResetValidator,
+): boolean {
+  return passwordResetValidators.unregister(idOrValidator);
+}
+
+export function registerEmailVerificationValidator(
+  validator: EmailVerificationValidator,
+): void;
+export function registerEmailVerificationValidator(
+  id: string,
+  validator: EmailVerificationValidator,
+): void;
+export function registerEmailVerificationValidator(
+  idOrValidator: string | EmailVerificationValidator,
+  validator?: EmailVerificationValidator,
+): void {
+  emailVerificationValidators.register(idOrValidator, validator);
+}
+
+export function unregisterEmailVerificationValidator(
+  idOrValidator: string | EmailVerificationValidator,
+): boolean {
+  return emailVerificationValidators.unregister(idOrValidator);
+}
+
+export {
+  augmentSession,
+  augmentUser,
+  registerIdentityAugmenter,
+  registerPasswordResetSessionAugmenter,
+  registerSessionAugmenter,
+  unregisterIdentityAugmenter,
+  unregisterPasswordResetSessionAugmenter,
+  unregisterSessionAugmenter,
+};
+
+export function registerSecurityRequirement(
+  requirement: SecurityRequirement,
+): void;
+export function registerSecurityRequirement(
+  id: string,
+  requirement: SecurityRequirement,
+): void;
+export function registerSecurityRequirement(
+  idOrRequirement: string | SecurityRequirement,
+  requirement?: SecurityRequirement,
+): void {
+  securityRequirements.register(idOrRequirement, requirement);
+}
+
+export function unregisterSecurityRequirement(
+  idOrRequirement: string | SecurityRequirement,
+): boolean {
+  return securityRequirements.unregister(idOrRequirement);
+}
+
+export async function runPasswordResetValidators(
+  userId: string,
+): Promise<AuthResponse | null> {
+  for (const validator of passwordResetValidators) {
+    const interception = await validator(userId);
+    if (interception) return interception;
+  }
+  return null;
+}
+
+export async function runEmailVerificationValidators(
+  userId: string,
+): Promise<AuthResponse | null> {
+  for (const validator of emailVerificationValidators) {
+    const interception = await validator(userId);
+    if (interception) return interception;
+  }
+  return null;
+}
+
+/**
+ * Checks if the current session satisfies all registered security requirements.
+ */
+export async function checkSecurity(
+  session: Session,
+  user: FullUser,
+  requiredRoles?: UserRole[],
+  requiredPermissions?: UserPermission[],
+  fallbackRedirect?: string,
+  /** Request path this check runs for; forwarded to modular requirements. */
+  path?: string,
+) {
+  if (!user) {
+    console.warn("User is required for security check");
+    return { satisfied: false, redirect: fallbackRedirect ?? "/signin" };
+  }
+
+  const userRoles = Array.isArray(user.roles) ? user.roles : [];
+  const userPermissions = Array.isArray(user.permissions)
+    ? user.permissions
+    : [];
+
+  // 1. Core Role Check (At least one role must match)
+  if (requiredRoles && requiredRoles.length > 0) {
+    const hasRole = requiredRoles.some((role) => userRoles.includes(role));
+    if (!hasRole) {
+      console.warn(`User lacks required roles: ${requiredRoles.join(", ")}`);
+      return {
+        satisfied: false,
+        redirect: fallbackRedirect,
+      };
+    }
+  }
+
+  // 2. Core Permission Check (ALL permissions must match)
+  if (requiredPermissions && requiredPermissions.length > 0) {
+    const hasAllPermissions = requiredPermissions.every((perm) =>
+      userPermissions.includes(perm),
+    );
+    if (!hasAllPermissions) {
+      console.warn(
+        `User lacks required permissions: ${requiredPermissions.join(", ")}`,
+      );
+
+      return {
+        satisfied: false,
+        redirect: fallbackRedirect,
+      };
+    }
+  }
+
+  // 3. Modular Requirements Check
+  if (securityRequirements) {
+    for (const requirement of securityRequirements) {
+      try {
+        const result = await requirement(session, user, path);
+        if (result && !result.satisfied) {
+          return {
+            ...result,
+            redirect: result.redirect ?? fallbackRedirect,
+          };
+        }
+      } catch (error) {
+        console.error("[veap:security] Requirement failed:", error);
+      }
+    }
+  }
+  return { satisfied: true };
+}
+
+/**
+ * Performs full augmentation on a user by merging core RBAC roles/permissions
+ * and running all registered modular identity augmenters.
+ */
+export async function performFullUserAugmentation(
+  user: User,
+  session?: Session,
+): Promise<FullUser> {
+  let rbacData = {};
+  if (isAuthContextBound()) {
+    try {
+      const ctx = authContext();
+      if (
+        ctx.rbac &&
+        typeof (ctx.rbac as any).coreRbacAugmenter === "function"
+      ) {
+        rbacData = await (ctx.rbac as any).coreRbacAugmenter(user);
+      }
+    } catch {
+      // ignore
+    }
+  }
+  return await augmentUser(user, rbacData);
+}

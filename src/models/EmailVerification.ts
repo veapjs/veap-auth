@@ -1,0 +1,36 @@
+import { type CastType, Model } from "@veap/database";
+import { User } from "./User";
+
+export interface EmailVerificationAttributes {
+  id: string;
+  email: string;
+  code: string;
+  userId: string;
+  user_id?: string;
+  expiresAt: Date;
+  expires_at?: Date;
+  createdAt?: Date;
+  created_at?: Date;
+  updatedAt?: Date | null;
+  updated_at?: Date | null;
+}
+
+export class EmailVerification extends Model<EmailVerificationAttributes> {
+  static override table = "verification_requests";
+
+  static override casts: Record<string, CastType> = {
+    expiresAt: "datetime",
+    expires_at: "datetime",
+    createdAt: "datetime",
+    created_at: "datetime",
+    updatedAt: "datetime",
+    updated_at: "datetime",
+  };
+
+  /**
+   * Associated user relation.
+   */
+  user() {
+    return this.belongsTo(User, "user_id");
+  }
+}
