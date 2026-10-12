@@ -28,6 +28,10 @@
       "types": "./dist/actions/index.d.ts",
       "default": "./dist/actions/index.js"
     },
+    "./validation": {
+      "types": "./dist/validation/index.d.ts",
+      "default": "./dist/validation/index.js"
+    },
     "./models": {
       "types": "./dist/models.d.ts",
       "default": "./dist/models.js"
