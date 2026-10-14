@@ -1,11 +1,19 @@
 # @veap/auth
 
+## 0.1.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @veap/database@0.1.2
+  - @veap/kernel@0.1.2
+
 ## 0.1.1
 
 ### Patch Changes
 
 - Fix double-hashing bug in AuthService.signUp, clean up client validation bundle leaks, define AUTH_ROUTES token, dynamic auth route redirects, native Node.js ESM module resolution, and cold-start race protection:
-  
+
   - Define and export `AUTH_ROUTES` IoC token (`Token<AuthRoutesConfig>`) within `@veap/auth` (`src/common/tokens.ts`, `src/common/routes.ts`, `src/common/index.ts`, `src/index.ts`), decoupling it from `@veap/kernel`.
   - Fix missing `.js` extensions across all relative module imports/exports in `src/` ensuring full compliance with native Node.js ESM loaders (`ERR_MODULE_NOT_FOUND` resolution).
   - Fix double hashing of user passwords during `AuthService.signUp` (preventing login failure for new accounts).
