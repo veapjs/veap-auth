@@ -1,5 +1,15 @@
 # @veap/auth
 
+## 0.1.5
+
+### Patch Changes
+
+- fix: update versions and dependencies
+- Updated dependencies []:
+  - @veap/database@0.1.5
+  - @veap/kernel@0.1.5
+  - @veap/mail@0.1.5
+
 ## 0.1.4
 
 ### Patch Changes
