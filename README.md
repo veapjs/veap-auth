@@ -82,9 +82,10 @@ import { AuthServiceProvider } from "@veap/auth";
 export const app = Application.configure()
   .use(DatabaseServiceProvider)
   .use(
-    new AuthServiceProvider(undefined, {
-      autoMigrate: true, // Automatically applies auth tables on boot
-    }),
+    (c) =>
+      new AuthServiceProvider(c, {
+        autoMigrate: true, // Automatically applies auth tables on boot
+      }),
   )
   .create();
 ```
@@ -106,6 +107,10 @@ export async function handleLogin(formData: FormData) {
 
   if (!result.success) {
     return { error: result.error?.message || "Invalid credentials" };
+  }
+
+  if (result.data.status === "CHALLENGE_REQUIRED") {
+    return { challenge: result.data };
   }
 
   return { user: result.data.user };
@@ -131,7 +136,7 @@ import { hashPassword } from "@veap/auth/server";
 
 // Create a new user with hashed credentials
 const user = await User.create({
-  name: "Jane Doe",
+  username: "janedoe",
   email: "jane@example.com",
   password: await hashPassword("securePassword123"),
   recovery_code: Buffer.from("recovery-key-bytes"),
@@ -154,6 +159,7 @@ if (adminRole) {
 | `@veap/auth/actions`    | Next.js Server Actions directly exportable for actions boundaries     |
 | `@veap/auth/models`     | Active Record models (`User`, `Session`, `Role`, `Permission`)        |
 | `@veap/auth/migrations` | Knex migrations for authentication tables                             |
+| `@veap/auth/validation` | Zod validation schemas (`loginSchema`, `registerSchema`, and others)  |
 
 ## Documentation
 
