@@ -7,14 +7,17 @@ import type {
 import { PasswordResetService } from "./password-reset.service.js";
 
 async function resolvePasswordResetService(): Promise<PasswordResetService> {
+  if (isAuthContextBound()) {
+    return authContext().passwordReset;
+  }
   const g = globalThis as any;
   if (g.__VEAP_BOOTSTRAPPING_PROMISE__) {
     try {
       await g.__VEAP_BOOTSTRAPPING_PROMISE__;
     } catch {}
-  }
-  if (isAuthContextBound()) {
-    return authContext().passwordReset;
+    if (isAuthContextBound()) {
+      return authContext().passwordReset;
+    }
   }
   return await app(PasswordResetService);
 }

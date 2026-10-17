@@ -8,14 +8,17 @@ import {
 export type { EmailVerificationRequestType };
 
 async function resolveVerificationService(): Promise<EmailVerificationService> {
+  if (isAuthContextBound()) {
+    return authContext().emailVerification;
+  }
   const g = globalThis as any;
   if (g.__VEAP_BOOTSTRAPPING_PROMISE__) {
     try {
       await g.__VEAP_BOOTSTRAPPING_PROMISE__;
     } catch {}
-  }
-  if (isAuthContextBound()) {
-    return authContext().emailVerification;
+    if (isAuthContextBound()) {
+      return authContext().emailVerification;
+    }
   }
   return await app(EmailVerificationService);
 }

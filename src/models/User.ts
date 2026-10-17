@@ -1,4 +1,4 @@
-import { type CastType, Model } from "@veap/database";
+import { type CastType, Model, MorphMap } from "@veap/database";
 import { Permission } from "./Permission.js";
 import { Role } from "./Role.js";
 import { Session } from "./Session.js";
@@ -17,6 +17,7 @@ export interface UserAttributes {
 
 export class User extends Model<UserAttributes> {
   static override table = "users";
+  static override morphAlias = "user";
 
   static override hidden = ["password", "recovery_code"];
 
@@ -61,3 +62,5 @@ export class User extends Model<UserAttributes> {
     );
   }
 }
+
+MorphMap.register({ user: User });

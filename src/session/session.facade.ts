@@ -10,14 +10,17 @@ import type {
 import { SessionService } from "./session.service.js";
 
 async function resolveSessionService(): Promise<SessionService> {
+  if (isAuthContextBound()) {
+    return authContext().session;
+  }
   const g = globalThis as any;
   if (g.__VEAP_BOOTSTRAPPING_PROMISE__) {
     try {
       await g.__VEAP_BOOTSTRAPPING_PROMISE__;
     } catch {}
-  }
-  if (isAuthContextBound()) {
-    return authContext().session;
+    if (isAuthContextBound()) {
+      return authContext().session;
+    }
   }
   return await app(SessionService);
 }

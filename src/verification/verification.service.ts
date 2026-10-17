@@ -4,11 +4,14 @@ import {
   Inject,
   Injectable,
 } from "@veap/kernel";
-import { sendVerifyEmail } from "@veap/mail";
 import { addMinutes } from "date-fns";
 import { getAuthRoutes } from "../common/context.js";
 import { registerSecurityRequirement } from "../common/logic.js";
 import { type ITokenGenerator, TOKEN_GENERATOR } from "../crypto/contracts.js";
+import {
+  AUTH_NOTIFICATION_SERVICE,
+  type IAuthNotificationService,
+} from "../notifications/contracts.js";
 import { SessionService } from "../session/session.service.js";
 import {
   EMAIL_VERIFICATION_REPOSITORY,
@@ -26,6 +29,8 @@ export class EmailVerificationService {
     @Inject(TOKEN_GENERATOR) private readonly tokens: ITokenGenerator,
     @Inject(COOKIE_STORE) private readonly cookieStore: ICookieStore,
     @Inject(SessionService) private readonly sessions: SessionService,
+    @Inject(AUTH_NOTIFICATION_SERVICE)
+    private readonly notifier?: IAuthNotificationService,
   ) {}
 
   /**
@@ -82,7 +87,9 @@ export class EmailVerificationService {
    * Sends a verification email with the OTP code.
    */
   async sendVerificationEmail(email: string, code: string): Promise<void> {
-    await sendVerifyEmail(email, code);
+    if (this.notifier) {
+      await this.notifier.sendVerificationEmail(email, code);
+    }
   }
 
   /**

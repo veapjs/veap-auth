@@ -3,6 +3,7 @@ import {
   ConfigService,
   Container,
   container as defaultContainer,
+  EVENT_BUS,
   logger,
   ServiceProvider,
 } from "@veap/kernel";
@@ -24,6 +25,11 @@ import {
 } from "../crypto/contracts.js";
 import { OsloTokenGenerator } from "../crypto/token-generator.js";
 import { runAuthMigrations } from "../migrations/index.js";
+import {
+  AUTH_NOTIFICATION_SERVICE,
+  DefaultAuthNotificationService,
+  type IMailerLike,
+} from "../notifications/index.js";
 import { PASSWORD_RESET_REPOSITORY } from "../passwords/contracts.js";
 import { ActiveRecordPasswordResetRepository } from "../passwords/password-reset.repository.js";
 import { PasswordResetService } from "../passwords/password-reset.service.js";
@@ -135,6 +141,26 @@ export class AuthServiceProvider extends ServiceProvider {
       useClass: ActiveRecordEmailVerificationRepository,
       singleton: true,
     });
+
+    if (!this.container.has(AUTH_NOTIFICATION_SERVICE)) {
+      this.container.register({
+        token: AUTH_NOTIFICATION_SERVICE,
+        useFactory: () => {
+          const mailerToken = Symbol.for("veap:communication:mailer");
+          return new DefaultAuthNotificationService(
+            () =>
+              this.container.has(mailerToken)
+                ? this.container.resolve<IMailerLike>(mailerToken)
+                : undefined,
+            () =>
+              this.container.has(EVENT_BUS)
+                ? this.container.resolve(EVENT_BUS)
+                : undefined,
+          );
+        },
+        singleton: true,
+      });
+    }
 
     // Services
     this.container.register({

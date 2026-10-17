@@ -1,5 +1,4 @@
 import { AppError, Inject, Injectable } from "@veap/kernel";
-import { sendRecoveryCode } from "@veap/mail";
 import type { User } from "../common/index.js";
 import {
   type IPasswordHasher,
@@ -9,6 +8,10 @@ import {
   SECRET_CIPHER,
   TOKEN_GENERATOR,
 } from "../crypto/contracts.js";
+import {
+  AUTH_NOTIFICATION_SERVICE,
+  type IAuthNotificationService,
+} from "../notifications/contracts.js";
 import { type IRoleRepository, ROLE_REPOSITORY } from "../rbac/contracts.js";
 import { type IUserRepository, USER_REPOSITORY } from "./contracts.js";
 
@@ -22,6 +25,8 @@ export class UserService {
     @Inject(PASSWORD_HASHER) private readonly hasher: IPasswordHasher,
     @Inject(TOKEN_GENERATOR) private readonly tokens: ITokenGenerator,
     @Inject(SECRET_CIPHER) private readonly cipher: ISecretCipher,
+    @Inject(AUTH_NOTIFICATION_SERVICE)
+    private readonly notifier?: IAuthNotificationService,
   ) {}
 
   /**
@@ -62,7 +67,9 @@ export class UserService {
 
     await this.assignDefaultRole(user.id);
     try {
-      await sendRecoveryCode(user.email, recoveryCode);
+      if (this.notifier) {
+        await this.notifier.sendRecoveryCode(user.email, recoveryCode);
+      }
     } catch (error: any) {
       console.warn(
         `[veap:auth] Failed to send recovery code email to ${user.email}:`,
@@ -135,7 +142,9 @@ export class UserService {
     await this.users.setRecoveryCode(userId, this.cipher.encrypt(recoveryCode));
 
     try {
-      await sendRecoveryCode(user.email, recoveryCode);
+      if (this.notifier) {
+        await this.notifier.sendRecoveryCode(user.email, recoveryCode);
+      }
     } catch (error: any) {
       console.warn(
         `[veap:auth] Failed to send recovery code email to ${user.email}:`,

@@ -1,8 +1,8 @@
 export * from "./actions/index.js";
-export { AuthProvider, useAuthRoutes, useUser } from "./client/index.js";
 export * from "./common/index.js";
 export * from "./composition.js";
 export * from "./crypto/index.js";
+export * from "./notifications/index.js";
 export * from "./passwords/index.js";
 export * from "./providers/index.js";
 export * from "./rbac/index.js";

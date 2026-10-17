@@ -4,17 +4,24 @@ import { BcryptPasswordHasher } from "./bcrypt-hasher.js";
 import { type IPasswordHasher, PASSWORD_HASHER } from "./contracts.js";
 
 async function resolvePasswordHasher(): Promise<IPasswordHasher> {
+  if (isAuthContextBound()) {
+    const ctx = authContext();
+    if (ctx.passwordHasher) {
+      return ctx.passwordHasher;
+    }
+  }
+
   const g = globalThis as any;
   if (g.__VEAP_BOOTSTRAPPING_PROMISE__) {
     try {
       await g.__VEAP_BOOTSTRAPPING_PROMISE__;
     } catch {}
-  }
 
-  if (isAuthContextBound()) {
-    const ctx = authContext();
-    if (ctx.passwordHasher) {
-      return ctx.passwordHasher;
+    if (isAuthContextBound()) {
+      const ctx = authContext();
+      if (ctx.passwordHasher) {
+        return ctx.passwordHasher;
+      }
     }
   }
 

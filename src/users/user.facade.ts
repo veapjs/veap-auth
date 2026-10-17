@@ -4,14 +4,17 @@ import type { User } from "../common/index.js";
 import { UserService } from "./user.service.js";
 
 async function resolveUserService(): Promise<UserService> {
+  if (isAuthContextBound()) {
+    return authContext().user;
+  }
   const g = globalThis as any;
   if (g.__VEAP_BOOTSTRAPPING_PROMISE__) {
     try {
       await g.__VEAP_BOOTSTRAPPING_PROMISE__;
     } catch {}
-  }
-  if (isAuthContextBound()) {
-    return authContext().user;
+    if (isAuthContextBound()) {
+      return authContext().user;
+    }
   }
   return await app(UserService);
 }

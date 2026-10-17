@@ -6,7 +6,6 @@ import {
   Inject,
   Injectable,
 } from "@veap/kernel";
-import { sendResetPassword } from "@veap/mail";
 import { addMinutes } from "date-fns";
 import { augmentPasswordResetSession } from "../common/augment.js";
 import type {
@@ -15,6 +14,10 @@ import type {
 } from "../common/index.js";
 import { performFullUserAugmentation } from "../common/logic.js";
 import { type ITokenGenerator, TOKEN_GENERATOR } from "../crypto/contracts.js";
+import {
+  AUTH_NOTIFICATION_SERVICE,
+  type IAuthNotificationService,
+} from "../notifications/contracts.js";
 import {
   type IPasswordResetRepository,
   PASSWORD_RESET_REPOSITORY,
@@ -42,6 +45,8 @@ export class PasswordResetService {
     @Inject(TOKEN_GENERATOR) private readonly tokens: ITokenGenerator,
     @Inject(COOKIE_STORE) private readonly cookieStore: ICookieStore,
     @Inject(CACHE_PROVIDER) private readonly cache?: ICacheProvider,
+    @Inject(AUTH_NOTIFICATION_SERVICE)
+    private readonly notifier?: IAuthNotificationService,
   ) {}
 
   async createPasswordResetSession(
@@ -294,6 +299,8 @@ export class PasswordResetService {
   }
 
   async sendPasswordResetEmail(email: string, code: string): Promise<void> {
-    await sendResetPassword(email, code);
+    if (this.notifier) {
+      await this.notifier.sendPasswordReset(email, code);
+    }
   }
 }
