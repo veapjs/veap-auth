@@ -137,7 +137,12 @@ class FakeRequestContext implements IHttpRequestContext {
   public redirects: string[] = [];
 
   public async getHeader(name: string): Promise<string | null> {
-    return this.headers.get(name) ?? null;
+    for (const [key, val] of this.headers.entries()) {
+      if (key.toLowerCase() === name.toLowerCase()) {
+        return val;
+      }
+    }
+    return null;
   }
 
   public redirect(url: string): never {
@@ -206,6 +211,68 @@ describe("SessionService", () => {
       expect(user?.email).toBe(USER.email);
       // Augmentation merged RBAC data into the user.
       expect((user as any)?.roles).toEqual(["user"]);
+    });
+
+    it("returns the session and augmented user for a valid Bearer token", async () => {
+      await repo.create({
+        id: tokens.hashToken("bearer-raw-token"),
+        userId: USER.id,
+        expiresAt: new Date(Date.now() + 60_000),
+      });
+      requestContext.headers.set("Authorization", "Bearer bearer-raw-token");
+
+      const { session, user } = await service.getCurrentSession();
+
+      expect(session?.id).toBe("hashed(bearer-raw-token)");
+      expect(user?.id).toBe(USER.id);
+      expect(user?.email).toBe(USER.email);
+    });
+
+    it("prioritizes Authorization Bearer header over cookie", async () => {
+      await repo.create({
+        id: tokens.hashToken("bearer-token"),
+        userId: USER.id,
+        expiresAt: new Date(Date.now() + 60_000),
+      });
+      await repo.create({
+        id: tokens.hashToken("cookie-token"),
+        userId: "user-other",
+        expiresAt: new Date(Date.now() + 60_000),
+      });
+      repo.users.set("user-other", {
+        id: "user-other",
+        email: "other@example.com",
+        name: "Other User",
+        password: "hash",
+      });
+
+      requestContext.headers.set("Authorization", "Bearer bearer-token");
+      await cookies.set("session", "cookie-token");
+
+      const { session, user } = await service.getCurrentSession();
+      expect(session?.id).toBe("hashed(bearer-token)");
+      expect(user?.id).toBe(USER.id);
+    });
+
+    it("falls back to cookie if Authorization header is not a Bearer token", async () => {
+      await repo.create({
+        id: tokens.hashToken("cookie-token"),
+        userId: USER.id,
+        expiresAt: new Date(Date.now() + 60_000),
+      });
+      requestContext.headers.set("Authorization", "Basic some-credentials");
+      await cookies.set("session", "cookie-token");
+
+      const { session, user } = await service.getCurrentSession();
+      expect(session?.id).toBe("hashed(cookie-token)");
+      expect(user?.id).toBe(USER.id);
+    });
+
+    it("returns nulls when Bearer token is invalid", async () => {
+      requestContext.headers.set("Authorization", "Bearer non-existent-token");
+      const { session, user } = await service.getCurrentSession();
+      expect(session).toBeNull();
+      expect(user).toBeNull();
     });
 
     it("returns nulls for an unknown token without touching the repo", async () => {

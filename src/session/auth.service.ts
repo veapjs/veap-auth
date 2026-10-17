@@ -152,6 +152,7 @@ export class AuthService {
       status: "SUCCESS",
       session: { ...session },
       user: { ...fullUser },
+      token: sessionToken,
     };
   }
 
@@ -210,6 +211,7 @@ export class AuthService {
       status: "SUCCESS",
       session: { ...session },
       user: { ...fullUser },
+      token: sessionToken,
     };
   }
 
@@ -247,6 +249,7 @@ export class AuthService {
       status: "SUCCESS",
       session: { ...session },
       user: { ...fullUser },
+      token: sessionToken,
     };
   }
 

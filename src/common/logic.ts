@@ -8,7 +8,7 @@ import {
   unregisterPasswordResetSessionAugmenter,
   unregisterSessionAugmenter,
 } from "./augment.js";
-import { authContext, isAuthContextBound } from "./context.js";
+import { authContext, getAuthRoutes, isAuthContextBound } from "./context.js";
 import { AuthCallbackRegistry } from "./registry.js";
 import type {
   AuthResponse,
@@ -207,7 +207,10 @@ export async function checkSecurity(
 ) {
   if (!user) {
     console.warn("User is required for security check");
-    return { satisfied: false, redirect: fallbackRedirect ?? "/signin" };
+    return {
+      satisfied: false,
+      redirect: fallbackRedirect ?? getAuthRoutes().signIn,
+    };
   }
 
   const userRoles = Array.isArray(user.roles) ? user.roles : [];

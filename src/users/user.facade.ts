@@ -1,5 +1,3 @@
-"use server";
-
 import { app } from "@veap/kernel";
 import { authContext, isAuthContextBound } from "../common/context.js";
 import type { User } from "../common/index.js";

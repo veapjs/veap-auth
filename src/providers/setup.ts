@@ -9,7 +9,18 @@ import { User } from "../models/User.js";
  */
 export async function isSystemInstalled(): Promise<boolean> {
   try {
-    const count = await User.query().count();
+    const res = await User.query().count();
+    let count = 0;
+    if (Array.isArray(res) && res.length > 0) {
+      const first = res[0];
+      const rawVal =
+        typeof first === "object" && first !== null
+          ? Object.values(first)[0]
+          : first;
+      count = Number(rawVal) || 0;
+    } else if (typeof res === "number") {
+      count = res;
+    }
 
     if (count === 0) {
       logger.debug("veap:setup", "System not installed. Publishing event.");

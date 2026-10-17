@@ -22,7 +22,8 @@ describe("ENCRYPTION_KEY configuration contract", () => {
     vi.stubEnv("ENCRYPTION_KEY", "");
     vi.resetModules();
 
-    await expect(() => import(MODULE_PATH)).rejects.toThrow(
+    const { getEncryptionKey } = await import(MODULE_PATH);
+    expect(() => getEncryptionKey()).toThrow(
       /ENCRYPTION_KEY environment variable is not set/,
     );
   });
@@ -31,7 +32,8 @@ describe("ENCRYPTION_KEY configuration contract", () => {
     vi.stubEnv("ENCRYPTION_KEY", "bXlfc2VjdXJlX2tleQ==");
     vi.resetModules();
 
-    await expect(() => import(MODULE_PATH)).rejects.toThrow(
+    const { getEncryptionKey } = await import(MODULE_PATH);
+    expect(() => getEncryptionKey()).toThrow(
       /must decode to 16, 24 or 32 bytes \(got 13\)/,
     );
   });
@@ -41,7 +43,8 @@ describe("ENCRYPTION_KEY configuration contract", () => {
     vi.stubEnv("ENCRYPTION_KEY", "MTIzNDU2Nzg=");
     vi.resetModules();
 
-    await expect(() => import(MODULE_PATH)).rejects.toThrow(
+    const { getEncryptionKey } = await import(MODULE_PATH);
+    expect(() => getEncryptionKey()).toThrow(
       /must decode to 16, 24 or 32 bytes \(got 8\)/,
     );
   });

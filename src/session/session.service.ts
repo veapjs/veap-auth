@@ -116,12 +116,26 @@ export class SessionService {
   }
 
   /**
-   * Returns the current user session from cookies.
+   * Returns the current user session from Bearer token or cookies.
    */
   public async getCurrentSession(): Promise<AuthSession> {
-    const token = await this.cookieStore.get("session");
+    let token: string | null = null;
 
-    if (token === null) {
+    const authHeader =
+      (await this.requestContext.getHeader("authorization")) ??
+      (await this.requestContext.getHeader("Authorization"));
+    if (authHeader) {
+      const match = authHeader.match(/^Bearer\s+(.+)$/i);
+      if (match?.[1]) {
+        token = match[1].trim();
+      }
+    }
+
+    if (!token) {
+      token = await this.cookieStore.get("session");
+    }
+
+    if (token === null || token === "") {
       return { session: null, user: null };
     }
 

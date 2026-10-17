@@ -1,3 +1,4 @@
+import type { IPasswordHasher } from "../crypto/contracts.js";
 import { type AuthRoutesConfig, DEFAULT_AUTH_ROUTES } from "./routes.js";
 
 export interface AuthContext {
@@ -7,6 +8,7 @@ export interface AuthContext {
   passwordReset: any;
   emailVerification: any;
   auth: any;
+  passwordHasher?: IPasswordHasher;
   routes?: AuthRoutesConfig;
 }
 

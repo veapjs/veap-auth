@@ -30,9 +30,9 @@ export class RbacService {
     return await this.roles.findById(roleId);
   }
 
-  async createRole(name: string, description?: string) {
+  async createRole(name: string, description?: string): Promise<RoleRecord> {
     const role = await this.roles.create({ name, description });
-    return [role];
+    return role;
   }
 
   async deleteRole(roleId: string): Promise<void> {
@@ -47,9 +47,12 @@ export class RbacService {
     return await this.permissions.findById(permissionId);
   }
 
-  async createPermission(name: string, description?: string) {
+  async createPermission(
+    name: string,
+    description?: string,
+  ): Promise<PermissionRecord> {
     const permission = await this.permissions.create({ name, description });
-    return [permission];
+    return permission;
   }
 
   async deletePermission(permissionId: string): Promise<void> {

@@ -53,6 +53,8 @@ describe("AuthService (Registration and Login Flow)", () => {
     expect(signUpResult.user).toBeDefined();
     expect(signUpResult.user.email).toBe("test@veap.dev");
     expect(signUpResult.session).toBeDefined();
+    expect(signUpResult.token).toBeDefined();
+    expect(typeof signUpResult.token).toBe("string");
 
     // 2. Email availability should now be false
     const isAvailable = await userService.isEmailAvailable("test@veap.dev");
@@ -71,6 +73,8 @@ describe("AuthService (Registration and Login Flow)", () => {
 
     expect(signInResult.user.id).toBe(signUpResult.user.id);
     expect(signInResult.session).toBeDefined();
+    expect(signInResult.token).toBeDefined();
+    expect(typeof signInResult.token).toBe("string");
   });
 
   it("rejects sign in with an invalid password", async () => {

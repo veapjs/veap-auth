@@ -17,6 +17,7 @@ import {
 import { AesSecretCipher } from "../crypto/aes-cipher.js";
 import { BcryptPasswordHasher } from "../crypto/bcrypt-hasher.js";
 import {
+  type IPasswordHasher,
   PASSWORD_HASHER,
   SECRET_CIPHER,
   TOKEN_GENERATOR,
@@ -176,7 +177,7 @@ export class AuthServiceProvider extends ServiceProvider {
   async boot(): Promise<void> {
     // 0. Auto-bootstrap setup state
     try {
-      isSystemInstalled();
+      await isSystemInstalled();
     } catch {}
 
     // 1. Resolve domain services and bind singleton auth context
@@ -191,6 +192,8 @@ export class AuthServiceProvider extends ServiceProvider {
         EmailVerificationService,
       );
     const auth = await this.container.resolve<AuthService>(AuthService);
+    const passwordHasher =
+      await this.container.resolve<IPasswordHasher>(PASSWORD_HASHER);
 
     bindAuthContext({
       user,
@@ -199,6 +202,7 @@ export class AuthServiceProvider extends ServiceProvider {
       passwordReset,
       emailVerification,
       auth,
+      passwordHasher,
       routes: this.resolveRoutes(),
     });
 

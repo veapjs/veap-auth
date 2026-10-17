@@ -28,9 +28,6 @@ export function getAlgorithm(key: Uint8Array): string {
       : "aes-256-gcm";
 }
 
-// Configuration contract: validate key on module load
-getEncryptionKey();
-
 /**
  * Encrypts data using AES-GCM.
  */

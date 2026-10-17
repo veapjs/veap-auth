@@ -1,5 +1,3 @@
-"use server";
-
 import { app } from "@veap/kernel";
 import { cache } from "react";
 import { authContext, isAuthContextBound } from "../common/context.js";

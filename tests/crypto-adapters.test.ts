@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 // The encryption module reads ENCRYPTION_KEY at import time - set it before
 // any import is evaluated (imports are hoisted, plain assignment is not).
@@ -10,11 +10,16 @@ vi.hoisted(() => {
 });
 
 import { ConfigService, Container } from "@veap/kernel";
+import { bindAuthContext } from "../src/common/context.js";
 import {
   AesSecretCipher,
   BcryptPasswordHasher,
+  hashPassword,
+  type IPasswordHasher,
   OsloTokenGenerator,
   PASSWORD_HASHER,
+  verifyPasswordHash,
+  verifyPasswordStrength,
 } from "../src/crypto/index.js";
 import { AuthServiceProvider } from "../src/providers/index.js";
 
@@ -194,5 +199,63 @@ describe("AuthServiceProvider PASSWORD_HASHER binding", () => {
     expect(hasher).toBeInstanceOf(BcryptPasswordHasher);
     expect(hasher.rounds).toBe(10);
     expect(hasher.minLength).toBe(8);
+  });
+});
+
+describe("Password facades (hashPassword, verifyPasswordHash, verifyPasswordStrength)", () => {
+  afterEach(() => {
+    delete (globalThis as any).__VEAP_AUTH_CONTEXT__;
+  });
+
+  it("delegates to fallback BcryptPasswordHasher when no container or context is bound", async () => {
+    delete (globalThis as any).__VEAP_AUTH_CONTEXT__;
+
+    const hash = await hashPassword("super-secret-password");
+    expect(hash).toMatch(/^\$2[ab]\$10\$/);
+
+    const isValid = await verifyPasswordHash(hash, "super-secret-password");
+    expect(isValid).toBe(true);
+
+    const isInvalid = await verifyPasswordHash(hash, "wrong-password");
+    expect(isInvalid).toBe(false);
+
+    expect(await verifyPasswordStrength("12345678")).toBe(true);
+    expect(await verifyPasswordStrength("short")).toBe(false);
+  });
+
+  it("delegates to bound AuthContext passwordHasher when auth context is bound", async () => {
+    const mockHasher: IPasswordHasher = {
+      hash: vi.fn(async (p: string) => `custom-hash:${p}`),
+      verify: vi.fn(async (h: string, p: string) => h === `custom-hash:${p}`),
+      validateStrength: vi.fn(async (p: string) => p.startsWith("custom-")),
+    };
+
+    bindAuthContext({
+      user: {},
+      session: {},
+      rbac: {},
+      passwordReset: {},
+      emailVerification: {},
+      auth: {},
+      passwordHasher: mockHasher,
+    });
+
+    const hash = await hashPassword("my-pass");
+    expect(hash).toBe("custom-hash:my-pass");
+    expect(mockHasher.hash).toHaveBeenCalledWith("my-pass");
+
+    const valid = await verifyPasswordHash("custom-hash:my-pass", "my-pass");
+    expect(valid).toBe(true);
+    expect(mockHasher.verify).toHaveBeenCalledWith(
+      "custom-hash:my-pass",
+      "my-pass",
+    );
+
+    const invalid = await verifyPasswordHash("custom-hash:other", "my-pass");
+    expect(invalid).toBe(false);
+
+    expect(await verifyPasswordStrength("custom-valid")).toBe(true);
+    expect(await verifyPasswordStrength("invalid")).toBe(false);
+    expect(mockHasher.validateStrength).toHaveBeenCalledWith("custom-valid");
   });
 });

@@ -76,7 +76,13 @@ export type UserSession = {
 };
 
 export type AuthResponse =
-  | { status: "SUCCESS"; session: Session; user: FullUser; redirect?: string }
+  | {
+      status: "SUCCESS";
+      session: Session;
+      user: FullUser;
+      token?: string;
+      redirect?: string;
+    }
   | {
       status: "CHALLENGE_REQUIRED";
       type: string;
