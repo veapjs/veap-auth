@@ -1,5 +1,14 @@
 # @veap/auth
 
+## 0.1.7
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @veap/kernel@0.2.0
+  - @veap/database@0.1.7
+  - @veap/mail@0.1.7
+
 ## 0.1.6
 
 ### Patch Changes
